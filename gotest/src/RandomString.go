@@ -26,7 +26,7 @@ func main() {
 	for i := 0; i < threads; i++ {
 		go func() {
 			for k := 0; k < iterations; k++ {
-				time.Sleep(time.Millisecond)
+				time.Sleep(time.Nanosecond)
 				//fmt.Println(randomString(k, charset))
 			}
 			completeChan <- 1

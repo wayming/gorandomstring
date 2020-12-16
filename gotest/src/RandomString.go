@@ -20,7 +20,7 @@ func randomString(length int, charset string) string {
 }
 func main() {
 	threads := 1000
-	iterations := 1000
+	iterations := 1000000
 	completeChan := make(chan int)
 	fmt.Println("********begin")
 	for i := 0; i < threads; i++ {

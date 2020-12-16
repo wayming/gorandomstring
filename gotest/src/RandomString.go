@@ -22,10 +22,12 @@ func main() {
 	threads := 1000
 	iterations := 1000
 	completeChan := make(chan int)
+	fmt.Println("********begin")
 	for i := 0; i < threads; i++ {
 		go func() {
 			for k := 0; k < iterations; k++ {
-				fmt.Println(randomString(k, charset))
+				time.Sleep(time.Millisecond)
+				//fmt.Println(randomString(k, charset))
 			}
 			completeChan <- 1
 		}()
@@ -34,4 +36,6 @@ func main() {
 	for i := 0; i < threads; i++ {
 		<-completeChan
 	}
+
+	fmt.Println("********end")
 }

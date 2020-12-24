@@ -18,6 +18,7 @@ func randomString(length int, charset string) string {
 	}
 	return string(b)
 }
+
 func main() {
 	threads := 1000
 	iterations := 1000000

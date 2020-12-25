@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -27,7 +28,7 @@ func main() {
 		panic(err)
 	}
 	priceDataChan := make(chan StockData, 10240)
-	done := make(chan int)
+	var wg sync.WaitGroup
 	fmt.Println(files)
 	// Stage1 - Process files in parallel
 	for _, fileName := range files {
@@ -36,7 +37,9 @@ func main() {
 			panic(err)
 		}
 		defer file.Close()
+		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			reader := bufio.NewReader(file)
 			for {
 				line, _, err := reader.ReadLine()
@@ -52,7 +55,6 @@ func main() {
 				data := StockData{priceDate, priceOpen, priceHigh, priceLow, priceClose}
 				priceDataChan <- data
 			}
-			done <- 1
 		}()
 	}
 
@@ -70,32 +72,40 @@ func main() {
 	// Stage 3 - display greatest diff
 	maxChan := make(chan StockData)
 	go func() {
-		var max StockData
+		max := <-upChan
 		for new := range upChan {
-			fmt.Println(max.close - max.open)
-			fmt.Println(new.close - new.open)
+			// fmt.Println(max.close / max.open)
 
-			if max.close-max.open < new.close-new.open {
+			if max.open == 0 {
 				max = new
+				continue
 			}
 
-			fmt.Println(max)
+			if new.open == 0 {
+				continue
+			}
+
+			if (max.close / max.open) < (new.close / new.open) {
+				max = new
+				continue
+			}
+
+			// fmt.Println(max.close / max.open)
 		}
 		maxChan <- max
 	}()
 
 	// Wait until stage 1 is done
-	for range files {
-		<-done
-	}
-	close(priceDataChan)
-	close(done)
+	go func() {
+		wg.Wait()
+		close(priceDataChan)
+	}()
 
 	max := <-maxChan
 	fmt.Printf("%s, open %f, close %f, diff %f\n",
 		max.date.String(),
 		max.open,
 		max.close,
-		max.close-max.open)
+		max.close/max.open)
 
 }

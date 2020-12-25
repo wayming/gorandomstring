@@ -19,7 +19,6 @@ func (p Point) Dump() {
 
 func main() {
 	fmt.Println("method test")
-
 	// p1 := Point{1, 2}
 	// p1 := new(Point)
 	var p1 *Point

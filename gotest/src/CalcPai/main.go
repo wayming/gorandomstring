@@ -10,7 +10,7 @@ import (
 func main() {
 	//totalIterations := 100000000000
 	totalIterations := 1000000000
-	workerIterations := 10000000
+	workerIterations := 100000000
 
 	countChan := make(chan int)
 	numThread := 0
